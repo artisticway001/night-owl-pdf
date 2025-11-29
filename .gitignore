@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+uploads/
+outputs/
+*.pdf
+!test_input.pdf
+.DS_Store

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Mode PDF Converter</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { gray: { 850: '#1a1a1a', 900: '#121212', 950: '#0a0a0a' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        .drag-pattern {
+            background-image: radial-gradient(#333 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-950 text-white min-h-screen flex flex-col font-sans">
+
+    <!-- Navbar -->
+    <nav class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white text-black rounded flex items-center justify-center font-bold text-lg">D
+                </div>
+                <span class="font-semibold tracking-tight text-lg">Night<span class="text-gray-400">owl</span></span>
+            </div>
+            <div class="flex items-center gap-4 text-sm">
+                <div id="connection-status"
+                    class="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                    <span>Disconnected</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl -z-10 pointer-events-none">
+        </div>
+
+        <div class="max-w-2xl w-full space-y-8 relative z-10">
+            <div class="text-center space-y-4">
+                <h1
+                    class="text-5xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500">
+                    Turn the lights off.
+                </h1>
+                <p class="text-gray-400 text-lg md:text-xl max-w-lg mx-auto">
+                    Professional grade dark-mode conversion.
+                </p>
+            </div>
+
+            <!-- Upload Card -->
+            <div
+                class="bg-gray-900 border border-gray-800 rounded-2xl p-2 shadow-2xl transition-all duration-300 hover:border-gray-700">
+                <div id="drop-zone"
+                    class="drag-pattern relative border-2 border-dashed border-gray-700 rounded-xl h-64 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group hover:border-white/50 hover:bg-gray-850">
+                    <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        accept="application/pdf">
+
+                    <div id="upload-prompt"
+                        class="text-center space-y-4 transition-transform duration-300 group-hover:scale-105">
+                        <div
+                            class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700 group-hover:border-white/30">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 group-hover:text-white"></i>
+                        </div>
+                        <p class="text-lg font-medium text-white">Click or drag PDF here</p>
+                    </div>
+
+                    <div id="file-info" class="hidden text-center space-y-4">
+                        <div
+                            class="w-16 h-16 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-file-pdf text-2xl"></i>
+                        </div>
+                        <div>
+                            <p id="filename" class="text-lg font-medium text-white truncate max-w-xs mx-auto">doc.pdf
+                            </p>
+                            <p id="filesize" class="text-sm text-gray-400">0.0 MB</p>
+                        </div>
+                        <button id="remove-file"
+                            class="text-xs text-red-400 hover:text-red-300 underline mt-2">Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                <button id="convert-btn" disabled
+                    class="w-full md:w-auto px-8 py-4 bg-white text-black font-bold rounded-lg transition-all duration-300 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Convert to Dark Mode</span>
+                </button>
+            </div>
+
+            <div id="console-output"
+                class="hidden bg-black rounded-lg border border-gray-800 p-4 font-mono text-xs text-gray-400 max-h-40 overflow-y-auto">
+                <div id="logs" class="space-y-1"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-gray-900 py-8 bg-black text-center text-gray-600 text-sm">
+        <p>&copy; 2024 Dark Mode Engine.</p>
+    </footer>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const uploadPrompt = document.getElementById('upload-prompt');
+        const fileInfo = document.getElementById('file-info');
+        const filenameDisplay = document.getElementById('filename');
+        const filesizeDisplay = document.getElementById('filesize');
+        const removeFileBtn = document.getElementById('remove-file');
+        const convertBtn = document.getElementById('convert-btn');
+        const consoleOutput = document.getElementById('console-output');
+        const logsContainer = document.getElementById('logs');
+        const statusBadge = document.getElementById('connection-status');
+        const envWarning = document.getElementById('env-warning');
+
+        let currentFile = null;
+
+        // --- 1. Environment Check (Interaction Design) ---
+        function checkEnvironment() {
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+            if (!isLocalhost) {
+                // If not running on localhost (e.g. in AI Preview), warn the user
+                envWarning.classList.remove('hidden');
+                log("Warning: App is not running on localhost.", "warning");
+                log("Please run app.py and open http://localhost:8000", "warning");
+            } else {
+                // We are on localhost, update status
+                statusBadge.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div><span class="text-green-400">System Ready</span>`;
+                statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20";
+                log("System connected to Local Backend.", "success");
+            }
+        }
+
+        // Run check on load
+        checkEnvironment();
+
+        // --- 2. File Handling ---
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); });
+        });
+
+        dropZone.addEventListener('dragover', () => dropZone.classList.add('border-white', 'bg-gray-800'));
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-white', 'bg-gray-800'));
+        dropZone.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleDrop(e) {
+            dropZone.classList.remove('border-white', 'bg-gray-800');
+            handleFiles(e.dataTransfer.files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                currentFile = files[0];
+                uploadPrompt.classList.add('hidden');
+                fileInfo.classList.remove('hidden');
+                filenameDisplay.textContent = currentFile.name;
+                filesizeDisplay.textContent = (currentFile.size / (1024 * 1024)).toFixed(2) + ' MB';
+                convertBtn.disabled = false;
+                log(`Selected: ${currentFile.name}`, "info");
+            } else {
+                alert("Only PDF files are allowed.");
+            }
+        }
+
+        removeFileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentFile = null;
+            fileInput.value = '';
+            uploadPrompt.classList.remove('hidden');
+            fileInfo.classList.add('hidden');
+            convertBtn.disabled = true;
+        });
+
+        // --- 3. Conversion Logic ---
+        convertBtn.addEventListener('click', async () => {
+            if (!currentFile) return;
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Processing...</span>';
+            consoleOutput.classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            try {
+                // Use RELATIVE path. This works if you are on http://localhost:8000
+                const response = await fetch('/convert', { method: 'POST', body: formData });
+
+                if (!response.ok) throw new Error(`Backend Error: ${response.statusText}`);
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `dark_${currentFile.name}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                log("Success! Download started.", "success");
+                convertBtn.innerHTML = '<i class="fa-solid fa-check"></i><span>Done!</span>';
+
+                setTimeout(() => {
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i><span>Convert Another</span>';
+                    // Reset UI
+                    removeFileBtn.click();
+                }, 2000);
+
+            } catch (error) {
+                log(error.message, "error");
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<span>Retry</span>';
+
+                if (window.location.hostname !== 'localhost') {
+                    alert("ERROR: You are not on localhost. Open http://localhost:8000 in your browser.");
+                }
+            }
+        });
+
+        function log(msg, type) {
+            const color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : 'text-gray-400');
+            const div = document.createElement('div');
+            div.innerHTML = `<span class="opacity-50">[${new Date().toLocaleTimeString()}]</span> <span class="${color}">${msg}</span>`;
+            logsContainer.appendChild(div);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>
