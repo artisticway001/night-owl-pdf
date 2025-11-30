@@ -91,7 +91,7 @@
                     class="drag-pattern relative border-2 border-dashed border-gray-700 rounded-xl h-64 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group hover:border-white/50 hover:bg-gray-850">
 
                     <div id="upload-prompt"
-                        class="text-center space-y-4 transition-transform duration-300 group-hover:scale-105">
+                        class="text-center space-y-4 transition-transform duration-300 group-hover:scale-105 pointer-events-none">
                         <div
                             class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700 group-hover:border-white/30">
                             <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 group-hover:text-white"></i>
@@ -224,9 +224,24 @@
             const formData = new FormData();
             formData.append('file', currentFile);
 
+            // Add timeout warning for large files
+            const timeoutWarning = setTimeout(() => {
+                log("Large PDF detected - this may take up to 2 minutes...", "info");
+            }, 5000);
+
             try {
                 // Use RELATIVE path. This works if you are on http://localhost:8000
-                const response = await fetch('/convert', { method: 'POST', body: formData });
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+                clearTimeout(timeoutWarning);
 
                 if (!response.ok) throw new Error(`Backend Error: ${response.statusText}`);
 
@@ -250,12 +265,19 @@
                 }, 2000);
 
             } catch (error) {
-                log(error.message, "error");
+                clearTimeout(timeoutWarning);
+
+                if (error.name === 'AbortError') {
+                    log("Conversion timed out. Try a smaller PDF or use localhost.", "error");
+                } else {
+                    log(error.message, "error");
+                }
+
                 convertBtn.disabled = false;
                 convertBtn.innerHTML = '<span>Retry</span>';
 
                 if (window.location.hostname !== 'localhost') {
-                    alert("ERROR: You are not on localhost. Open http://localhost:8000 in your browser.");
+                    alert("TIP: For large PDFs, run locally with 'python app.py' for faster processing!");
                 }
             }
         });
