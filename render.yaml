@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: night-owl-pdf
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker app:app --workers 2 --timeout 120 --max-requests 1000 --max-requests-jitter 50
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: WEB_CONCURRENCY
+        value: 2
+    healthCheckPath: /health
+    autoDeploy: true

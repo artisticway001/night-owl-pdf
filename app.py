@@ -37,20 +37,42 @@ async def convert_pdf(file: UploadFile = File(...)):
     output_path = os.path.join(OUTPUT_DIR, output_filename)
     
     try:
+        # Save uploaded file
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
+        # Convert PDF
         converter.convert(input_path, output_path)
         
-        return FileResponse(
+        # Return the converted file
+        response = FileResponse(
             output_path, 
             media_type="application/pdf", 
             filename=output_filename
         )
+        
+        # Clean up files after response is sent
+        # This prevents disk space issues on Render.com
+        def cleanup():
+            try:
+                if os.path.exists(input_path):
+                    os.remove(input_path)
+                if os.path.exists(output_path):
+                    os.remove(output_path)
+            except:
+                pass
+        
+        # Schedule cleanup after response
+        response.background = cleanup
+        
+        return response
+        
     except Exception as e:
-        # Clean up if possible
+        # Clean up on error
         if os.path.exists(input_path):
             os.remove(input_path)
+        if os.path.exists(output_path):
+            os.remove(output_path)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")

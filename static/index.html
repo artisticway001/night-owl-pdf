@@ -86,10 +86,9 @@
             <!-- Upload Card -->
             <div
                 class="bg-gray-900 border border-gray-800 rounded-2xl p-2 shadow-2xl transition-all duration-300 hover:border-gray-700">
+                <input type="file" id="file-input" class="hidden" accept="application/pdf">
                 <div id="drop-zone"
                     class="drag-pattern relative border-2 border-dashed border-gray-700 rounded-xl h-64 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group hover:border-white/50 hover:bg-gray-850">
-                    <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        accept="application/pdf">
 
                     <div id="upload-prompt"
                         class="text-center space-y-4 transition-transform duration-300 group-hover:scale-105">
@@ -172,6 +171,11 @@
         checkEnvironment();
 
         // --- 2. File Handling ---
+        // Click to open file dialog
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
             dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); });
         });
