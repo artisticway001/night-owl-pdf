@@ -53,6 +53,10 @@ async def convert_pdf(file: UploadFile = File(...)):
             os.remove(input_path)
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "message": "PDF Dark Mode Converter API is running"}
+
 @app.get("/")
 async def read_root():
     return FileResponse("static/index.html")
