@@ -113,16 +113,23 @@ class PDFDarkThemeConverter:
                 max_x = max(max_x, rect.x1)
                 max_y = max(max_y, rect.y1)
                 
-            # Add some padding (e.g., 20 points)
-            if max_x > page.rect.width or max_y > page.rect.height:
-                new_width = max_x + 20
-                new_height = max_y + 20
-                # Update page mediabox to fit content
-                page.set_mediabox(fitz.Rect(0, 0, new_width, new_height))
+            # Add safety margin for font width differences (e.g. 50 points)
+            # This ensures that if the substituted font is wider, it won't get cut off
+            safety_margin = 50
+            
+            # Always expand width by safety margin to be safe
+            new_width = max(max_x, page.rect.width) + safety_margin
+            new_height = max(max_y, page.rect.height)
+            
+            # Update page dimensions
+            # Important: Set both MediaBox and CropBox to ensure viewer shows everything
+            new_rect = fitz.Rect(0, 0, new_width, new_height)
+            page.set_mediabox(new_rect)
+            page.set_cropbox(new_rect)
             
             # --- Step 2: The Black Curtain ---
             # Draw a black rectangle over the entire page
-            # Use page.rect which respects the current page boundaries (now potentially expanded)
+            # Use page.rect which respects the current page boundaries (now expanded)
             page.draw_rect(page.rect, color=None, fill=self.background_color, overlay=True)
             
             # --- Step 3: Redraw Vector Graphics ---
