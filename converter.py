@@ -71,11 +71,22 @@ class PDFDarkThemeConverter:
         3. Redraw vector graphics (lines, tables) on top, inverting colors.
         4. Redraw images on top.
         5. Redraw text on top (white).
+        
+        IMPORTANT: Preserves original page dimensions to avoid cropping.
         """
         doc = fitz.open(input_path)
         
         for page_num in range(len(doc)):
             page = doc[page_num]
+            
+            # --- Step 0: Preserve Page Dimensions ---
+            # Store the original mediabox and cropbox to avoid any cropping issues
+            original_mediabox = page.mediabox
+            original_cropbox = page.cropbox
+            
+            # Use cropbox if it exists, otherwise use mediabox
+            # This ensures we respect the intended visible area
+            page_bounds = page.cropbox if page.cropbox != page.mediabox else page.mediabox
             
             # --- Step 1: Capture Data ---
             # Get drawings before we cover them
@@ -86,9 +97,9 @@ class PDFDarkThemeConverter:
             text_dict = page.get_text("dict")
             
             # --- Step 2: The Black Curtain ---
-            # Draw a black rectangle over the entire page
+            # Draw a black rectangle over the ENTIRE page (using mediabox to ensure full coverage)
             # This hides the original white background and everything else
-            page.draw_rect(page.rect, color=None, fill=self.background_color, overlay=True)
+            page.draw_rect(original_mediabox, color=None, fill=self.background_color, overlay=True)
             
             # --- Step 3: Redraw Vector Graphics ---
             shape = page.new_shape()
@@ -96,8 +107,8 @@ class PDFDarkThemeConverter:
             for path in drawings:
                 # Skip if it looks like a white background layer
                 # Heuristic: Large rect, filled with white
-                if path['rect'].width > page.rect.width * 0.9 and \
-                   path['rect'].height > page.rect.height * 0.9 and \
+                if path['rect'].width > page_bounds.width * 0.9 and \
+                   path['rect'].height > page_bounds.height * 0.9 and \
                    self._is_white(path['fill']):
                     continue
                 
