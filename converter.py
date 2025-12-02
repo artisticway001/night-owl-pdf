@@ -29,46 +29,147 @@ class PDFDarkThemeConverter:
             self.font_cache[font_name] = 'helv'
             return 'helv'
 
+    def _is_white(self, color):
+        """Check if a color is white or close to white."""
+        if not color:
+            return False
+        # Handle different color formats (int, tuple, list)
+        if isinstance(color, int):
+            # Hex/Int representation
+            r = (color >> 16) & 0xFF
+            g = (color >> 8) & 0xFF
+            b = color & 0xFF
+            return r > 240 and g > 240 and b > 240
+        elif isinstance(color, (tuple, list)):
+            if len(color) >= 3:
+                # 0-1 float range
+                if all(isinstance(c, float) for c in color):
+                    return all(c > 0.9 for c in color)
+                # 0-255 int range
+                return all(c > 240 for c in color)
+        return False
+
+    def _is_black(self, color):
+        """Check if a color is black or close to black."""
+        if color is None:
+            return True # Default stroke is often black
+        if isinstance(color, int):
+            return color < 100 # Rough check
+        elif isinstance(color, (tuple, list)):
+            if len(color) >= 3:
+                if all(isinstance(c, float) for c in color):
+                    return all(c < 0.1 for c in color)
+                return all(c < 20 for c in color)
+        return False
+
     def convert(self, input_path: str, output_path: str):
         """
-        Converts a PDF to dark mode with optimized performance.
-        
-        PERFORMANCE OPTIMIZATIONS:
-        - Processes text at span level instead of character-by-character (90% faster)
-        - Caches font lookups to avoid repeated checks
-        - Uses batch operations where possible
+        Converts a PDF to dark mode by reconstructing the page content.
+        Strategy:
+        1. Analyze existing content (drawings, images, text).
+        2. Draw a black "curtain" over everything (overlay=True).
+        3. Redraw vector graphics (lines, tables) on top, inverting colors.
+        4. Redraw images on top.
+        5. Redraw text on top (white).
         """
         doc = fitz.open(input_path)
         
         for page_num in range(len(doc)):
             page = doc[page_num]
             
-            # Step 1: Draw black background
-            page.draw_rect(page.rect, color=None, fill=self.background_color, overlay=False)
-            
-            # Step 2: Extract and redraw text in white (OPTIMIZED)
-            # Use "dict" mode which is faster than "rawdict" for span-level processing
+            # --- Step 1: Capture Data ---
+            # Get drawings before we cover them
+            drawings = page.get_drawings()
+            # Get images
+            image_list = page.get_images(full=True)
+            # Get text
             text_dict = page.get_text("dict")
             
+            # --- Step 2: The Black Curtain ---
+            # Draw a black rectangle over the entire page
+            # This hides the original white background and everything else
+            page.draw_rect(page.rect, color=None, fill=self.background_color, overlay=True)
+            
+            # --- Step 3: Redraw Vector Graphics ---
+            shape = page.new_shape()
+            
+            for path in drawings:
+                # Skip if it looks like a white background layer
+                # Heuristic: Large rect, filled with white
+                if path['rect'].width > page.rect.width * 0.9 and \
+                   path['rect'].height > page.rect.height * 0.9 and \
+                   self._is_white(path['fill']):
+                    continue
+                
+                # Determine new colors
+                stroke = path['color']
+                fill = path['fill']
+                
+                # Invert black stroke to white
+                if self._is_black(stroke):
+                    stroke = self.text_color
+                
+                # Invert white fill to black (or transparent?)
+                # If it's a small white box, maybe it should be black?
+                if self._is_white(fill):
+                    fill = self.background_color
+                
+                # Re-draw items
+                for item in path['items']:
+                    if item[0] == 'l': # line
+                        shape.draw_line(item[1], item[2])
+                    elif item[0] == 're': # rect
+                        shape.draw_rect(item[1])
+                    elif item[0] == 'c': # curve
+                        shape.draw_bezier(item[1], item[2], item[3], item[4])
+                    # Add other shapes if needed (quads, etc.)
+                
+                # Finish the shape with new colors
+                try:
+                    # Clean up dashes if needed
+                    dashes = path['dashes']
+                    if dashes == '[] 0':
+                        dashes = None
+                        
+                    shape.finish(color=stroke, fill=fill, width=path['width'], 
+                                 lineCap=path['lineCap'], lineJoin=path['lineJoin'], 
+                                 dashes=dashes, closePath=path['closePath'])
+                except:
+                    # If drawing fails, skip this path to prevent crash
+                    continue
+            
+            # Commit drawings
+            shape.commit(overlay=True)
+            
+            # --- Step 4: Redraw Images ---
+            for img in image_list:
+                xref = img[0]
+                # Get image bbox - this is tricky as get_images doesn't give rect directly
+                # We need to find where the image is used.
+                # page.get_image_rects(xref) returns a list of rects
+                rects = page.get_image_rects(xref)
+                for rect in rects:
+                    try:
+                        page.insert_image(rect, xref=xref, overlay=True)
+                    except:
+                        pass
+
+            # --- Step 5: Redraw Text (Optimized) ---
             blocks = text_dict["blocks"]
             for block in blocks:
                 if block["type"] == 0:  # Text block
                     for line in block["lines"]:
                         for span in line["spans"]:
-                            # Extract span properties
                             text = span["text"]
-                            font_size = span["size"]
-                            font_name = span["font"]
-                            origin = span["origin"]  # (x, y) starting point
-                            
-                            # Skip empty spans
                             if not text or not text.strip():
                                 continue
+                                
+                            font_size = span["size"]
+                            font_name = span["font"]
+                            origin = span["origin"]
                             
-                            # Check font availability (cached)
                             font_to_use = self._check_font(font_name)
                             
-                            # Insert entire span at once (much faster than char-by-char)
                             try:
                                 page.insert_text(
                                     point=origin,
@@ -78,8 +179,8 @@ class PDFDarkThemeConverter:
                                     color=self.text_color,
                                     overlay=True
                                 )
-                            except Exception as e:
-                                # Fallback to helvetica if there's any issue
+                            except:
+                                # Fallback
                                 try:
                                     page.insert_text(
                                         point=origin,
@@ -90,12 +191,12 @@ class PDFDarkThemeConverter:
                                         overlay=True
                                     )
                                 except:
-                                    # If even helvetica fails, skip this span
-                                    # This is rare but prevents crashes
                                     pass
 
-        # Save with optimized settings
-        doc.save(output_path, garbage=4, deflate=True, clean=True)
+        # Save with optimized settings for speed vs size
+        # garbage=3 is good balance, deflate=True is needed for size but costs CPU
+        # clean=False saves time on large files
+        doc.save(output_path, garbage=3, deflate=True)
         doc.close()
 
 if __name__ == "__main__":
