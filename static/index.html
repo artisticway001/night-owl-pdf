@@ -46,251 +46,264 @@
     </style>
 </head>
 
-<div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-<span>Disconnected</span>
-</div>
-</div>
-</div>
-</nav>
+<body class="bg-gray-950 text-white min-h-screen flex flex-col font-sans">
 
-<!-- Main Content -->
-<main class="flex-grow flex flex-col items-center justify-center p-6 relative overflow-hidden">
-    <div
-        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl -z-10 pointer-events-none">
-    </div>
-
-    <div class="max-w-2xl w-full space-y-8 relative z-10">
-        <div class="text-center space-y-4">
-            <h1
-                class="text-5xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500">
-                Turn the lights off.
-            </h1>
-            <p class="text-gray-400 text-lg md:text-xl max-w-lg mx-auto">
-                Professional grade dark-mode conversion.
-            </p>
-            <div id="env-warning"
-                class="hidden p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-yellow-200 text-sm max-w-md mx-auto">
-                <i class="fa-solid fa-triangle-exclamation mr-2"></i>
-                <span>Running in Preview Mode. For full functionality, run locally.</span>
+    <!-- Navbar -->
+    <nav class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white text-black rounded flex items-center justify-center font-bold text-lg">D
+                </div>
+                <span class="font-semibold tracking-tight text-lg">Night<span class="text-gray-400">owl</span></span>
+            </div>
+            <div class="flex items-center gap-4 text-sm">
+                <div id="connection-status"
+                    class="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                    <span>Disconnected</span>
+                </div>
             </div>
         </div>
+    </nav>
 
-        <!-- Upload Card -->
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center p-6 relative overflow-hidden">
         <div
-            class="bg-gray-900 border border-gray-800 rounded-2xl p-2 shadow-2xl transition-all duration-300 hover:border-gray-700">
-            <input type="file" id="file-input" class="hidden" accept="application/pdf">
-            <div id="drop-zone"
-                class="drag-pattern relative border-2 border-dashed border-gray-700 rounded-xl h-64 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group hover:border-white/50 hover:bg-gray-850">
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl -z-10 pointer-events-none">
+        </div>
 
-                <div id="upload-prompt"
-                    class="text-center space-y-4 transition-transform duration-300 group-hover:scale-105 pointer-events-none">
-                    <div
-                        class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700 group-hover:border-white/30">
-                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 group-hover:text-white"></i>
-                    </div>
-                    <p class="text-lg font-medium text-white">Click or drag PDF here</p>
-                </div>
-
-                <div id="file-info" class="hidden text-center space-y-4">
-                    <div
-                        class="w-16 h-16 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-file-pdf text-2xl"></i>
-                    </div>
-                    <div>
-                        <p id="filename" class="text-lg font-medium text-white truncate max-w-xs mx-auto">doc.pdf
-                        </p>
-                        <p id="filesize" class="text-sm text-gray-400">0.0 MB</p>
-                    </div>
-                    <button id="remove-file"
-                        class="text-xs text-red-400 hover:text-red-300 underline mt-2">Remove</button>
+        <div class="max-w-2xl w-full space-y-8 relative z-10">
+            <div class="text-center space-y-4">
+                <h1
+                    class="text-5xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500">
+                    Turn the lights off.
+                </h1>
+                <p class="text-gray-400 text-lg md:text-xl max-w-lg mx-auto">
+                    Professional grade dark-mode conversion.
+                </p>
+                <div id="env-warning"
+                    class="hidden p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-yellow-200 text-sm max-w-md mx-auto">
+                    <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                    <span>Running in Preview Mode. For full functionality, run locally.</span>
                 </div>
             </div>
+
+            <!-- Upload Card -->
+            <div
+                class="bg-gray-900 border border-gray-800 rounded-2xl p-2 shadow-2xl transition-all duration-300 hover:border-gray-700">
+                <input type="file" id="file-input" class="hidden" accept="application/pdf">
+                <div id="drop-zone"
+                    class="drag-pattern relative border-2 border-dashed border-gray-700 rounded-xl h-64 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group hover:border-white/50 hover:bg-gray-850">
+
+                    <div id="upload-prompt"
+                        class="text-center space-y-4 transition-transform duration-300 group-hover:scale-105 pointer-events-none">
+                        <div
+                            class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-700 group-hover:border-white/30">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 group-hover:text-white"></i>
+                        </div>
+                        <p class="text-lg font-medium text-white">Click or drag PDF here</p>
+                    </div>
+
+                    <div id="file-info" class="hidden text-center space-y-4">
+                        <div
+                            class="w-16 h-16 bg-white text-black rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa-solid fa-file-pdf text-2xl"></i>
+                        </div>
+                        <div>
+                            <p id="filename" class="text-lg font-medium text-white truncate max-w-xs mx-auto">doc.pdf
+                            </p>
+                            <p id="filesize" class="text-sm text-gray-400">0.0 MB</p>
+                        </div>
+                        <button id="remove-file"
+                            class="text-xs text-red-400 hover:text-red-300 underline mt-2">Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                <button id="convert-btn" disabled
+                    class="w-full md:w-auto px-8 py-4 bg-white text-black font-bold rounded-lg transition-all duration-300 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Convert to Dark Mode</span>
+                </button>
+            </div>
+
+            <div id="console-output"
+                class="hidden bg-black rounded-lg border border-gray-800 p-4 font-mono text-xs text-gray-400 max-h-40 overflow-y-auto">
+                <div id="logs" class="space-y-1"></div>
+            </div>
         </div>
+    </main>
 
-        <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
-            <button id="convert-btn" disabled
-                class="w-full md:w-auto px-8 py-4 bg-white text-black font-bold rounded-lg transition-all duration-300 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>Convert to Dark Mode</span>
-            </button>
-        </div>
+    <footer class="border-t border-gray-900 py-8 bg-black text-center text-gray-600 text-sm">
+        <p>&copy; 2024 Dark Mode Engine.</p>
+    </footer>
 
-        <div id="console-output"
-            class="hidden bg-black rounded-lg border border-gray-800 p-4 font-mono text-xs text-gray-400 max-h-40 overflow-y-auto">
-            <div id="logs" class="space-y-1"></div>
-        </div>
-    </div>
-</main>
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const uploadPrompt = document.getElementById('upload-prompt');
+        const fileInfo = document.getElementById('file-info');
+        const filenameDisplay = document.getElementById('filename');
+        const filesizeDisplay = document.getElementById('filesize');
+        const removeFileBtn = document.getElementById('remove-file');
+        const convertBtn = document.getElementById('convert-btn');
+        const consoleOutput = document.getElementById('console-output');
+        const logsContainer = document.getElementById('logs');
+        const statusBadge = document.getElementById('connection-status');
+        const envWarning = document.getElementById('env-warning');
 
-<footer class="border-t border-gray-900 py-8 bg-black text-center text-gray-600 text-sm">
-    <p>&copy; 2024 Dark Mode Engine.</p>
-</footer>
+        let currentFile = null;
 
-<script>
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const uploadPrompt = document.getElementById('upload-prompt');
-    const fileInfo = document.getElementById('file-info');
-    const filenameDisplay = document.getElementById('filename');
-    const filesizeDisplay = document.getElementById('filesize');
-    const removeFileBtn = document.getElementById('remove-file');
-    const convertBtn = document.getElementById('convert-btn');
-    const consoleOutput = document.getElementById('console-output');
-    const logsContainer = document.getElementById('logs');
-    const statusBadge = document.getElementById('connection-status');
-    const envWarning = document.getElementById('env-warning');
+        // --- 1. Environment Check (Health Check) ---
+        async function checkEnvironment() {
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    statusBadge.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div><span class="text-green-400">System Ready</span>`;
+                    statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20";
+                    log("System connected.", "success");
+                    // Hide warning if connected, regardless of hostname (Render is fine)
+                    envWarning.classList.add('hidden');
+                } else {
+                    throw new Error('Health check failed');
+                }
+            } catch (e) {
+                statusBadge.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div><span>Disconnected</span>`;
+                statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20";
+                log("Backend disconnected. Check server.", "error");
 
-    let currentFile = null;
-
-    // --- 1. Environment Check (Health Check) ---
-    async function checkEnvironment() {
-        try {
-            const response = await fetch('/health');
-            if (response.ok) {
-                statusBadge.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500"></div><span class="text-green-400">System Ready</span>`;
-                statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20";
-                log("System connected.", "success");
-                // Hide warning if connected, regardless of hostname (Render is fine)
-                envWarning.classList.add('hidden');
-            } else {
-                throw new Error('Health check failed');
-            }
-        } catch (e) {
-            statusBadge.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div><span>Disconnected</span>`;
-            statusBadge.className = "flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20";
-            log("Backend disconnected. Check server.", "error");
-
-            // If on localhost and disconnected, show warning
-            if (window.location.hostname !== 'localhost') {
-                // On Render, this shouldn't happen if deployed correctly
+                // If on localhost and disconnected, show warning
+                if (window.location.hostname !== 'localhost') {
+                    // On Render, this shouldn't happen if deployed correctly
+                }
             }
         }
-    }
 
-    // Run check on load and every 30 seconds
-    checkEnvironment();
-    setInterval(checkEnvironment, 30000);
+        // Run check on load and every 30 seconds
+        checkEnvironment();
+        setInterval(checkEnvironment, 30000);
 
-    // --- 2. File Handling ---
-    // Click to open file dialog
-    dropZone.addEventListener('click', () => {
-        fileInput.click();
-    });
+        // --- 2. File Handling ---
+        // Click to open file dialog
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
 
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
-        dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); });
-    });
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); });
+        });
 
-    dropZone.addEventListener('dragover', () => dropZone.classList.add('border-white', 'bg-gray-800'));
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-white', 'bg-gray-800'));
-    dropZone.addEventListener('drop', handleDrop);
-    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        dropZone.addEventListener('dragover', () => dropZone.classList.add('border-white', 'bg-gray-800'));
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-white', 'bg-gray-800'));
+        dropZone.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
-    function handleDrop(e) {
-        dropZone.classList.remove('border-white', 'bg-gray-800');
-        handleFiles(e.dataTransfer.files);
-    }
-
-    function handleFiles(files) {
-        if (files.length > 0 && files[0].type === 'application/pdf') {
-            currentFile = files[0];
-            uploadPrompt.classList.add('hidden');
-            fileInfo.classList.remove('hidden');
-            filenameDisplay.textContent = currentFile.name;
-            filesizeDisplay.textContent = (currentFile.size / (1024 * 1024)).toFixed(2) + ' MB';
-            convertBtn.disabled = false;
-            log(`Selected: ${currentFile.name}`, "info");
-        } else {
-            alert("Only PDF files are allowed.");
+        function handleDrop(e) {
+            dropZone.classList.remove('border-white', 'bg-gray-800');
+            handleFiles(e.dataTransfer.files);
         }
-    }
 
-    removeFileBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        currentFile = null;
-        fileInput.value = '';
-        uploadPrompt.classList.remove('hidden');
-        fileInfo.classList.add('hidden');
-        convertBtn.disabled = true;
-    });
-
-    // --- 3. Conversion Logic ---
-    convertBtn.addEventListener('click', async () => {
-        if (!currentFile) return;
-
-        convertBtn.disabled = true;
-        convertBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Processing...</span>';
-        consoleOutput.classList.remove('hidden');
-
-        const formData = new FormData();
-        formData.append('file', currentFile);
-
-        // Add timeout warning for large files
-        const timeoutWarning = setTimeout(() => {
-            log("Large PDF detected - this may take up to 2 minutes...", "info");
-        }, 5000);
-
-        try {
-            // Use RELATIVE path. This works if you are on http://localhost:8000
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
-
-            const response = await fetch('/convert', {
-                method: 'POST',
-                body: formData,
-                signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-            clearTimeout(timeoutWarning);
-
-            if (!response.ok) throw new Error(`Backend Error: ${response.statusText}`);
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `dark_${currentFile.name}`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-
-            log("Success! Download started.", "success");
-            convertBtn.innerHTML = '<i class="fa-solid fa-check"></i><span>Done!</span>';
-
-            setTimeout(() => {
+        function handleFiles(files) {
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                currentFile = files[0];
+                uploadPrompt.classList.add('hidden');
+                fileInfo.classList.remove('hidden');
+                filenameDisplay.textContent = currentFile.name;
+                filesizeDisplay.textContent = (currentFile.size / (1024 * 1024)).toFixed(2) + ' MB';
                 convertBtn.disabled = false;
-                convertBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i><span>Convert Another</span>';
-                // Reset UI
-                removeFileBtn.click();
-            }, 2000);
-
-        } catch (error) {
-            clearTimeout(timeoutWarning);
-
-            if (error.name === 'AbortError') {
-                log("Conversion timed out. Try a smaller PDF or use localhost.", "error");
+                log(`Selected: ${currentFile.name}`, "info");
             } else {
-                log(error.message, "error");
-            }
-
-            convertBtn.disabled = false;
-            convertBtn.innerHTML = '<span>Retry</span>';
-
-            if (window.location.hostname !== 'localhost') {
-                alert("TIP: For large PDFs, run locally with 'python app.py' for faster processing!");
+                alert("Only PDF files are allowed.");
             }
         }
-    });
 
-    function log(msg, type) {
-        const color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : 'text-gray-400');
-        const div = document.createElement('div');
-        div.innerHTML = `<span class="opacity-50">[${new Date().toLocaleTimeString()}]</span> <span class="${color}">${msg}</span>`;
-        logsContainer.appendChild(div);
-        consoleOutput.scrollTop = consoleOutput.scrollHeight;
-    }
-</script>
+        removeFileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentFile = null;
+            fileInput.value = '';
+            uploadPrompt.classList.remove('hidden');
+            fileInfo.classList.add('hidden');
+            convertBtn.disabled = true;
+        });
+
+        // --- 3. Conversion Logic ---
+        convertBtn.addEventListener('click', async () => {
+            if (!currentFile) return;
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Processing...</span>';
+            consoleOutput.classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            // Add timeout warning for large files
+            const timeoutWarning = setTimeout(() => {
+                log("Large PDF detected - this may take up to 2 minutes...", "info");
+            }, 5000);
+
+            try {
+                // Use RELATIVE path. This works if you are on http://localhost:8000
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+                clearTimeout(timeoutWarning);
+
+                if (!response.ok) throw new Error(`Backend Error: ${response.statusText}`);
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `dark_${currentFile.name}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                log("Success! Download started.", "success");
+                convertBtn.innerHTML = '<i class="fa-solid fa-check"></i><span>Done!</span>';
+
+                setTimeout(() => {
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i><span>Convert Another</span>';
+                    // Reset UI
+                    removeFileBtn.click();
+                }, 2000);
+
+            } catch (error) {
+                clearTimeout(timeoutWarning);
+
+                if (error.name === 'AbortError') {
+                    log("Conversion timed out. Try a smaller PDF or use localhost.", "error");
+                } else {
+                    log(error.message, "error");
+                }
+
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<span>Retry</span>';
+
+                if (window.location.hostname !== 'localhost') {
+                    alert("TIP: For large PDFs, run locally with 'python app.py' for faster processing!");
+                }
+            }
+        });
+
+        function log(msg, type) {
+            const color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : 'text-gray-400');
+            const div = document.createElement('div');
+            div.innerHTML = `<span class="opacity-50">[${new Date().toLocaleTimeString()}]</span> <span class="${color}">${msg}</span>`;
+            logsContainer.appendChild(div);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+    </script>
 </body>
 
 </html>
