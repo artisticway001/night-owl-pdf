@@ -3,8 +3,10 @@ import os
 
 class PDFDarkThemeConverter:
     def __init__(self):
-        self.background_color = (0, 0, 0)  # Black
-        self.text_color = (1, 1, 1)        # White
+        # Soft dark theme - easier on the eyes than pure black
+        # RGB values in 0-1 range for PyMuPDF
+        self.background_color = (0.1, 0.1, 0.1)  # Soft dark gray (#1a1a1a)
+        self.text_color = (0.96, 0.96, 0.96)     # Slightly off-white (#f5f5f5)
         self.font_cache = {}  # Cache for font availability checks
 
     def _check_font(self, font_name: str) -> str:
@@ -177,28 +179,32 @@ class PDFDarkThemeConverter:
                                 
                             font_size = span["size"]
                             font_name = span["font"]
-                            origin = span["origin"]
+                            bbox = span["bbox"]  # Use bbox instead of origin for accurate positioning
                             
                             font_to_use = self._check_font(font_name)
                             
                             try:
-                                page.insert_text(
-                                    point=origin,
+                                # Use insert_textbox with bbox to preserve exact layout
+                                # This prevents text from being cut off
+                                page.insert_textbox(
+                                    rect=bbox,
                                     text=text,
                                     fontsize=font_size,
                                     fontname=font_to_use,
                                     color=self.text_color,
+                                    align=0,  # Left align
                                     overlay=True
                                 )
                             except:
-                                # Fallback
+                                # Fallback to helvetica
                                 try:
-                                    page.insert_text(
-                                        point=origin,
+                                    page.insert_textbox(
+                                        rect=bbox,
                                         text=text,
                                         fontsize=font_size,
                                         fontname="helv",
                                         color=self.text_color,
+                                        align=0,
                                         overlay=True
                                     )
                                 except:
