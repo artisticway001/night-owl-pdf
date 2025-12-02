@@ -86,12 +86,43 @@ class PDFDarkThemeConverter:
             drawings = page.get_drawings()
             # Get images
             image_list = page.get_images(full=True)
-            # Get text
-            text_dict = page.get_text("dict")
+            
+            # Get text - IMPORTANT: Use a large clip rect to find out-of-bounds text
+            # Default get_text only looks inside page.rect
+            large_rect = fitz.Rect(-1000, -1000, 5000, 5000)
+            text_dict = page.get_text("dict", clip=large_rect)
+            
+            # --- Step 1.5: Auto-Expand Page Size ---
+            # Calculate required dimensions to fit all content
+            max_x = page.rect.width
+            max_y = page.rect.height
+            
+            # Check text bounds
+            blocks = text_dict["blocks"]
+            for block in blocks:
+                if block["type"] == 0:
+                    for line in block["lines"]:
+                        for span in line["spans"]:
+                            bbox = span["bbox"]
+                            max_x = max(max_x, bbox[2])
+                            max_y = max(max_y, bbox[3])
+            
+            # Check drawing bounds
+            for path in drawings:
+                rect = path['rect']
+                max_x = max(max_x, rect.x1)
+                max_y = max(max_y, rect.y1)
+                
+            # Add some padding (e.g., 20 points)
+            if max_x > page.rect.width or max_y > page.rect.height:
+                new_width = max_x + 20
+                new_height = max_y + 20
+                # Update page mediabox to fit content
+                page.set_mediabox(fitz.Rect(0, 0, new_width, new_height))
             
             # --- Step 2: The Black Curtain ---
             # Draw a black rectangle over the entire page
-            # Use page.rect which respects the current page boundaries
+            # Use page.rect which respects the current page boundaries (now potentially expanded)
             page.draw_rect(page.rect, color=None, fill=self.background_color, overlay=True)
             
             # --- Step 3: Redraw Vector Graphics ---
