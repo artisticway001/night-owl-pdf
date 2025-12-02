@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
@@ -28,7 +28,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 converter = PDFDarkThemeConverter()
 
 @app.post("/convert")
-async def convert_pdf(file: UploadFile = File(...)):
+async def convert_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="File must be a PDF")
     
@@ -44,13 +44,6 @@ async def convert_pdf(file: UploadFile = File(...)):
         # Convert PDF
         converter.convert(input_path, output_path)
         
-        # Return the converted file
-        response = FileResponse(
-            output_path, 
-            media_type="application/pdf", 
-            filename=output_filename
-        )
-        
         # Clean up files after response is sent
         # This prevents disk space issues on Render.com
         def cleanup():
@@ -63,9 +56,15 @@ async def convert_pdf(file: UploadFile = File(...)):
                 pass
         
         # Schedule cleanup after response
-        response.background = cleanup
+        if background_tasks:
+            background_tasks.add_task(cleanup)
         
-        return response
+        # Return the converted file
+        return FileResponse(
+            output_path, 
+            media_type="application/pdf", 
+            filename=output_filename
+        )
         
     except Exception as e:
         # Clean up on error
