@@ -81,15 +81,6 @@ class PDFDarkThemeConverter:
         for page_num in range(len(doc)):
             page = doc[page_num]
             
-            # --- Step 0: Preserve Page Dimensions ---
-            # Store the original mediabox and cropbox to avoid any cropping issues
-            original_mediabox = page.mediabox
-            original_cropbox = page.cropbox
-            
-            # Use cropbox if it exists, otherwise use mediabox
-            # This ensures we respect the intended visible area
-            page_bounds = page.cropbox if page.cropbox != page.mediabox else page.mediabox
-            
             # --- Step 1: Capture Data ---
             # Get drawings before we cover them
             drawings = page.get_drawings()
@@ -99,9 +90,9 @@ class PDFDarkThemeConverter:
             text_dict = page.get_text("dict")
             
             # --- Step 2: The Black Curtain ---
-            # Draw a black rectangle over the ENTIRE page (using mediabox to ensure full coverage)
-            # This hides the original white background and everything else
-            page.draw_rect(original_mediabox, color=None, fill=self.background_color, overlay=True)
+            # Draw a black rectangle over the entire page
+            # Use page.rect which respects the current page boundaries
+            page.draw_rect(page.rect, color=None, fill=self.background_color, overlay=True)
             
             # --- Step 3: Redraw Vector Graphics ---
             shape = page.new_shape()
@@ -109,8 +100,8 @@ class PDFDarkThemeConverter:
             for path in drawings:
                 # Skip if it looks like a white background layer
                 # Heuristic: Large rect, filled with white
-                if path['rect'].width > page_bounds.width * 0.9 and \
-                   path['rect'].height > page_bounds.height * 0.9 and \
+                if path['rect'].width > page.rect.width * 0.9 and \
+                   path['rect'].height > page.rect.height * 0.9 and \
                    self._is_white(path['fill']):
                     continue
                 
@@ -179,32 +170,31 @@ class PDFDarkThemeConverter:
                                 
                             font_size = span["size"]
                             font_name = span["font"]
-                            bbox = span["bbox"]  # Use bbox instead of origin for accurate positioning
+                            origin = span["origin"]
                             
                             font_to_use = self._check_font(font_name)
                             
                             try:
-                                # Use insert_textbox with bbox to preserve exact layout
-                                # This prevents text from being cut off
-                                page.insert_textbox(
-                                    rect=bbox,
+                                # Use insert_text with render_mode=0 to ensure text is visible
+                                page.insert_text(
+                                    point=origin,
                                     text=text,
                                     fontsize=font_size,
                                     fontname=font_to_use,
                                     color=self.text_color,
-                                    align=0,  # Left align
+                                    render_mode=0,  # Fill text (default, ensures visibility)
                                     overlay=True
                                 )
                             except:
                                 # Fallback to helvetica
                                 try:
-                                    page.insert_textbox(
-                                        rect=bbox,
+                                    page.insert_text(
+                                        point=origin,
                                         text=text,
                                         fontsize=font_size,
                                         fontname="helv",
                                         color=self.text_color,
-                                        align=0,
+                                        render_mode=0,
                                         overlay=True
                                     )
                                 except:
