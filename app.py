@@ -23,6 +23,9 @@ OUTPUT_DIR = "outputs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+# Maximum file size: 50MB
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB in bytes
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 converter = PDFDarkThemeConverter()
@@ -32,6 +35,18 @@ async def convert_pdf(file: UploadFile = File(...), background_tasks: Background
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="File must be a PDF")
     
+    # Read file contents to check size
+    contents = await file.read()
+    file_size = len(contents)
+    
+    # Validate file size
+    if file_size > MAX_FILE_SIZE:
+        size_mb = file_size / (1024 * 1024)
+        raise HTTPException(
+            status_code=413,
+            detail=f"File too large. Maximum size is 50MB, your file is {size_mb:.1f}MB"
+        )
+    
     input_path = os.path.join(UPLOAD_DIR, file.filename)
     output_filename = f"dark_{file.filename}"
     output_path = os.path.join(OUTPUT_DIR, output_filename)
@@ -39,7 +54,7 @@ async def convert_pdf(file: UploadFile = File(...), background_tasks: Background
     try:
         # Save uploaded file
         with open(input_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(contents)
             
         # Convert PDF
         converter.convert(input_path, output_path)
